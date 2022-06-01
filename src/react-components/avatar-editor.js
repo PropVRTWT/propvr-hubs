@@ -104,6 +104,29 @@ class AvatarEditor extends Component {
   }
 
   componentDidMount = async () => {
+    this.setState({ReadyPlayer:false})
+
+    window.addEventListener("message",async (Message)=>{
+      const response = await fetch(Message.data);
+      const blob = await response.blob();
+      const file = new File([blob], 'asd.glb', {type: blob.type});
+      
+          this.inputFiles["glb"] = file;
+          URL.revokeObjectURL(this.state.avatar.files["glb"]);
+          this.setState({
+            ReadyPlayer:false,
+            avatar: {
+              ...this.state.avatar,
+              ["parent_avatar_listing_id"]: "",
+              files: {
+                ...this.state.avatar.files,
+                glb: URL.createObjectURL(file)
+              }
+            },
+            previewGltfUrl: this.getPreviewUrl("")
+          });
+      console.log(Message.data)
+    }, false);
     if (this.props.avatarId) {
       const avatar = await fetchAvatar(this.props.avatarId);
       avatar.creatorAttribution = (avatar.attributions && avatar.attributions.creator) || "";
@@ -145,7 +168,7 @@ class AvatarEditor extends Component {
 
   uploadAvatar = async e => {
     e.preventDefault();
-
+    
     if (this.inputFiles.glb && this.inputFiles.glb instanceof File) {
       const gltfLoader = new THREE.GLTFLoader().register(parser => new GLTFBinarySplitterPlugin(parser));
       const gltfUrl = URL.createObjectURL(this.inputFiles.glb);
@@ -374,7 +397,7 @@ class AvatarEditor extends Component {
   selectListingGrid = (propName, placeholder) => (
     <div className="select-grid-container">
       <label htmlFor={`#avatar-${propName}`}>{placeholder}</label>
-      <div className="select-grid">
+      {/* <div className="select-grid">
         {this.state.baseAvatarResults.map(a => (
           <div
             onClick={() =>
@@ -390,7 +413,7 @@ class AvatarEditor extends Component {
             <img src={a.images.preview.url} />
           </div>
         ))}
-      </div>
+      </div> */}
       <input
         id="avatar-file_glb"
         type="file"
@@ -422,6 +445,13 @@ class AvatarEditor extends Component {
           defaultMessage="{icon} Custom GLB"
           values={{ icon: <FontAwesomeIcon icon={faCloudUploadAlt} /> }}
         />
+      </label>
+      <label onClick={()=>(this.setState({ReadyPlayer:true}))}
+        className={classNames("item", "custom", { selected: "" === this.state.avatar[propName] })}
+      >
+        <span
+          
+        >Create your look a like</span>
       </label>
     </div>
   );
@@ -466,7 +496,9 @@ class AvatarEditor extends Component {
     const { debug, intl } = this.props;
     const { avatar } = this.state;
 
-    return (
+    return (<>
+    {this.state.ReadyPlayer?
+      <iframe src="https://demo.readyplayer.me/avatar" style={{position:"fixed",top:"0",width:"100%",height:"100%",zIndex:"13",pointerEvents:"all"}}/>:""}
       <div className={classNames(styles.avatarEditor, this.props.className)}>
         {this.props.onClose && (
           <a className="close-button" onClick={this.props.onClose}>
@@ -735,6 +767,7 @@ class AvatarEditor extends Component {
           </form>
         )}
       </div>
+      </>
     );
   }
 }
