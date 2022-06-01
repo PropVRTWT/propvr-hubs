@@ -107,6 +107,8 @@ class AvatarEditor extends Component {
     this.setState({ReadyPlayer:false})
 
     window.addEventListener("message",async (Message)=>{
+      this.setState({
+        ReadyPlayer:false})
       const response = await fetch(Message.data);
       const blob = await response.blob();
       const file = new File([blob], 'asd.glb', {type: blob.type});
@@ -114,8 +116,7 @@ class AvatarEditor extends Component {
           this.inputFiles["glb"] = file;
           URL.revokeObjectURL(this.state.avatar.files["glb"]);
           this.setState({
-            ReadyPlayer:false,
-            avatar: {
+              avatar: {
               ...this.state.avatar,
               ["parent_avatar_listing_id"]: "",
               files: {
