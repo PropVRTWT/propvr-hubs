@@ -104,30 +104,15 @@ class AvatarEditor extends Component {
   }
 
   componentDidMount = async () => {
-    this.setState({ReadyPlayer:false})
-
-    window.addEventListener("message",async (Message)=>{
-      this.setState({
-        ReadyPlayer:false})
-      const response = await fetch(Message.data);
+    const QS= new URLSearchParams((window.location.href).split("?")[1]||"")
+    const GLBLink=QS.get('avatar')
+    if(GLBLink){
+      const response = await fetch(GLBLink);
       const blob = await response.blob();
-      const file = new File([blob], 'asd.glb', {type: blob.type});
+      var GLBfile = new File([blob], 'asd.glb', {type: blob.type});
+        this.inputFiles["glb"] = GLBfile;
+    }
       
-          this.inputFiles["glb"] = file;
-          URL.revokeObjectURL(this.state.avatar.files["glb"]);
-          this.setState({
-              avatar: {
-              ...this.state.avatar,
-              ["parent_avatar_listing_id"]: "",
-              files: {
-                ...this.state.avatar.files,
-                glb: URL.createObjectURL(file)
-              }
-            },
-            previewGltfUrl: this.getPreviewUrl("")
-          });
-      console.log(Message.data)
-    }, false);
     if (this.props.avatarId) {
       const avatar = await fetchAvatar(this.props.avatarId);
       avatar.creatorAttribution = (avatar.attributions && avatar.attributions.creator) || "";
@@ -138,17 +123,33 @@ class AvatarEditor extends Component {
       const baseAvatarResults = entries.map(e => ({ id: e.id, name: e.name, gltfs: e.gltfs, images: e.images }));
       if (baseAvatarResults.length) {
         const randomAvatarResult = baseAvatarResults[Math.floor(Math.random() * baseAvatarResults.length)];
+      
         this.setState({
           baseAvatarResults,
           avatar: {
             name: "My Avatar",
-            files: {},
+            files: GLBLink?{glb:URL.createObjectURL(GLBfile)}:{},
             base_gltf_url: randomAvatarResult.gltfs.base,
-            parent_avatar_listing_id: randomAvatarResult.id
+              ["parent_avatar_listing_id"]: GLBLink?"":randomAvatarResult.id,
+
           },
-          previewGltfUrl: randomAvatarResult.gltfs.avatar
+          previewGltfUrl: GLBLink?this.getPreviewUrl(""):randomAvatarResult.gltfs.avatar
         });
-      } else {
+        if(GLBLink){
+          var updated_params="";
+        QS.forEach((value,index)=>{
+          if(index!="avatar"){
+            if(updated_params.length){
+                updated_params+="&"+index+"="+value;
+            }else{
+                updated_params+=index+"="+value;
+            }
+          }
+        })
+        window.history.pushState({},null, updated_params);   
+        }
+         
+        } else {
         this.setState({
           avatar: {
             name: "My Avatar",
@@ -447,7 +448,7 @@ class AvatarEditor extends Component {
           values={{ icon: <FontAwesomeIcon icon={faCloudUploadAlt} /> }}
         />
       </label>
-      <label onClick={()=>(this.setState({ReadyPlayer:true}))}
+      <label onClick={()=>{window.location="https://propvr.tech/readyplayer.html?redirect="+(encodeURIComponent(window.location.href))}}
         className={classNames("item", "custom", { selected: "" === this.state.avatar[propName] })}
       >
         <span
@@ -498,8 +499,7 @@ class AvatarEditor extends Component {
     const { avatar } = this.state;
 
     return (<>
-    {this.state.ReadyPlayer?
-      <iframe src="https://demo.readyplayer.me/avatar" style={{position:"fixed",top:"0",width:"100%",height:"100%",zIndex:"13",pointerEvents:"all"}}/>:""}
+    
       <div className={classNames(styles.avatarEditor, this.props.className)}>
         {this.props.onClose && (
           <a className="close-button" onClick={this.props.onClose}>
