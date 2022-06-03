@@ -142,7 +142,8 @@ export class SoundEffectsSystem {
     const audioBuffer = this.sounds.get(sound);
     if (!audioBuffer) return null;
 
-    const disablePositionalAudio = isSafari() || window.APP.store.state.preferences.disableLeftRightPanning;
+    // const disablePositionalAudio = isSafari() || window.APP.store.state.preferences.disableLeftRightPanning;
+    const disablePositionalAudio = true;
     const positionalAudio = disablePositionalAudio
       ? new THREE.Audio(this.scene.audioListener)
       : new THREE.PositionalAudio(this.scene.audioListener);
