@@ -449,9 +449,9 @@ class AvatarEditor extends Component {
       </label>
       <label onClick={()=>(this.setState({ReadyPlayer:true}))}
         className={classNames("item", "custom", { selected: "" === this.state.avatar[propName] })}
-      >
+        style={{color:"#fff",background:"#2979FF"}}>
         <span
-          
+         
         >Create your look a like</span>
       </label>
     </div>
