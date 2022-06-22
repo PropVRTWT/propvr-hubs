@@ -499,7 +499,7 @@ class AvatarEditor extends Component {
 
     return (<>
     {this.state.ReadyPlayer?
-      <iframe src="https://demo.readyplayer.me/avatar" style={{position:"fixed",top:"0",width:"100%",height:"100%",zIndex:"13",pointerEvents:"all"}}/>:""}
+      <iframe src="https://demo.readyplayer.me/avatar" style={{position:"fixed",top:"0",width:"100%",height:"100%",zIndex:"13",pointerEvents:"all"}} allow="camera;microphone" />:""}
       <div className={classNames(styles.avatarEditor, this.props.className)}>
         {this.props.onClose && (
           <a className="close-button" onClick={this.props.onClose}>
