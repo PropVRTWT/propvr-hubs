@@ -152,7 +152,14 @@ class MediaBrowserContainer extends Component {
     this.props.mediaSearchStore.addEventListener("sourcechanged", this.sourceChanged);
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    // if(type=="avatar"){
+      if((window.location.href).includes("avatar=")){
+      window.dispatchEvent(new CustomEvent("action_create_avatar"));
+  
+      }
+    // }
+  }
 
   componentWillUnmount() {
     this.props.mediaSearchStore.removeEventListener("statechanged", this.storeUpdated);
